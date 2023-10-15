@@ -1,0 +1,28 @@
+<table style="margin-top: 30px; text-align: center; width: 100%; cursor: pointer;"> 
+        <tr>
+            <th>Name</th>
+            <th style="word-break: break-all;">Olingan Narsalar</th>
+            <th>Umumiy</th>
+            <th>Qaytarilgan</th>
+            <th>Qoldi</th>
+            <th>Olingan Vaxt</th>
+            <th>Qarz Topshirish</th>
+            <th>Tarix</th>
+        </tr>
+       {% for order in orders %}
+       <tr class="row">
+        <td><a href="{% url 'customerdata' order.who.id %}" class="user">{{order.who}}</a></td>
+        <td style="word-break: break-all;">
+         {% for product in order.orderitem_set.all %}
+            {{product.product}}(x*{{product.quantity}}, {{product.get_total}})
+         {% endfor %}
+        </td>
+        <td>{{order.get_all_sum}} sum</td>
+        <td> {{order.returned_dept}} sum </td>
+        <td> {{order.dept}} </td>
+        <td>{{order.date|date:"d/m/y H:i"}}</td>
+        <td> <button class="turn" id="{{order.id}}"> Qaytarish </button> </td>
+        <td><button><a href="{% url 'showHistory' order.id %}" style="text-decoration: none; color: black;">Ko'rish</a></button></td>
+    </tr>
+       {% endfor %}
+       </table>

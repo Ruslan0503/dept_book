@@ -1,0 +1,71 @@
+<!DOCTYPE html> 
+<html lang="en"> 
+<head> 
+    <meta charset="UTF-8"> 
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+    <title>Tarix</title> 
+ 
+    <style> 
+        table, th,tr,td{ 
+            border: 1px solid; 
+            border-collapse: collapse; 
+            padding: 10px; 
+        } 
+        th,td{ 
+            width: 10%; 
+        } 
+    </style> 
+</head> 
+<body> 
+       
+      <h1>{{who}}</h1> 
+      {% for item in data %} 
+        {% if forloop.counter == 1 %} 
+        <div class="items"> 
+            <table style="text-align: center;"> 
+                <tr> 
+                    <th>Qolgani</th> 
+                    <th>Umumiy</th> 
+                    <th>Qaytarilgan</th> 
+                    <th>Qaytarilgan sanalar</th> 
+                </tr> 
+                <tr> 
+                    <td> <b style="color: red;">{{item.who.dept}} sum</b> </td> 
+                    <td>{{item.who.get_all_dept}} sum</td> 
+                    <td>{{item.who.returned_dept}} sum</td> 
+                    <td> 
+                        {% for i in item.who.get_history %} 
+                                <p>{{i.time|date:"d/m/y H:i"}} <strong style="font-size: large;">-</strong> {{i.quantity}} sum</p>  
+                        {% endfor %} 
+                    </td> 
+                </tr> 
+            </table> 
+        </div> 
+        {% endif %}
+        {% endfor %} 
+        <table style="margin-top: 30px; text-align: center; width: 100%; cursor: pointer;">  
+            <tr> 
+                <th style="word-break: break-all;">Olingan Narsalar</th> 
+                <th>Umumiy</th> 
+                <th>Olingan Vaxt</th> 
+                <th>Qancha Vaxt bo'ldi</th> 
+            </tr> 
+            {% for i in data %}
+                <tr>
+                    <td>
+                    {% for product in i.orderitem_set.all %}
+                    {{product.product}}(x*{{product.quantity}}, {{product.get_total}})
+                    {% endfor %}
+                    </td>
+                    <td>{{i.get_all_sum}} sum</td> 
+                    <td>{{i.date|date:"d/m/y H:i"}}</td> 
+                    <td>{{i.date|timesince}}</td> 
+                </tr>
+                
+            {% endfor %}
+           </table> 
+        <p></p> 
+ 
+      <p> <button><a href="{% url 'home' %}" style="text-decoration: none; padding:5px;">Back</a></button> </p> 
+</body> 
+</html>

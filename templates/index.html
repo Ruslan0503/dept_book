@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dept</title>
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+    <style>
+        body{
+            margin:0;
+            padding: 0;
+            background-color: #F2F3F4;
+        }
+        .ul{
+            margin:0;
+            padding:0;
+            list-style-type: none;
+            background-color: #212F3D;
+            overflow: hidden;
+        }
+        .ul li{
+            font-size: 25px;
+        }
+        .ul li a{
+            display: block;
+            padding: 14px 16px;
+            text-align: center;
+            text-decoration: none;
+            color: #CACFD2;
+        }
+        a{
+            text-decoration: none;
+        }
+        table, th,td, tr{
+            border: 1px solid;
+            border-collapse: collapse;
+            overflow-x:auto;
+        }
+        th,td{
+            padding: 5px;
+        }
+        .popup-image input{
+            font-size: 30px;
+            border: 2px solid black;
+            border-radius: 15px;
+        }
+        #filter{
+            padding:10px;
+            font-size:20px;
+            background-color: #212F3D;
+            color: white;
+            border:1px solid black;
+        }
+    </style>
+</head>
+<body>
+       <ul class="ul">
+        <li style="float: left;"><a href="#" class="first">Qarz Daftar</a></li>
+        <li style="float: right;"><a href="#" onclick="document.querySelector('.popup-image').style.display = 'block';">AddUser</a></li>
+        <li style="float: right;"><a href="#" onclick="document.querySelector('.popup-image2').style.display = 'block';">Add Dept</a></li>
+       </ul>
+       
+       <div style="display: flex; width: 100%; align-items: center;">
+        <div class="searcher" style="margin-top: 10px; margin-left: 20px; width: 80%;">
+            <input type="text" name="" id="search" placeholder="Ism bo'yicha qidirish.." style="font-size: 25px;
+            width: 50%; height: 40px; border-radius: 25px; text-indent: 10px; background-color: #212F3D; color: wheat;">
+         </div>
+         
+         <div class="filter" style="width: 20%; margin-right: 30px; margin-top:10px;">
+          <select name="filter" id="filter">
+              {% if q == 'dept' %}
+              <option value="dept">Qarzi Ko'plar</option>
+              <option value="All"></option>
+              <option value="manyTime">Ko'p vaqt bo'lganlar</option>
+              {% elif q == 'manyTime' %}
+              <option value="manyTime">Ko'p vaqt bo'lganlar</option>
+              <option value="All"></option>
+              <option value="dept">Qarzi Ko'plar</option>
+              {% else %}
+              <option value="All"></option>
+              <option value="dept">Qarzi Ko'plar</option>
+              <option value="manyTime">Ko'p vaqt bo'lganlar</option>
+              {% endif %}
+          </select>
+         </div>
+
+       </div>
+
+       <table style="margin-top: 30px;width: 99%; cursor: pointer; margin-left: auto; margin-right: auto;"> 
+        <tr>
+            <th style="width: 20%;">Name</th>
+            <th>Umumiy</th>
+            <th>Qaytarilgan</th>
+            <th>Qoldi</th>
+            <th>Telefon no'mer</th>
+            <th>Qarz Topshirish</th>
+            <th>Tarix</th>
+        </tr>
+       {% for order in customers %}
+       <tr class="row" style="text-align: center;">
+        <td><a href="{% url 'customerdata' order.id %}" class="user"> {{order.id}} {{order.name}}</a></td>
+        <td>{{order.get_all_dept}} sum</td>
+        <td> {{order.returned_dept}} sum </td>
+        <td> {{order.dept}} sum </td>
+        <td>{{order.phone_number}}</td>
+        <td> <button class="turn" id="{{order.id}}"> Qaytarish </button> </td>
+        <td><button><a href="{% url 'showHistory' order.id %}" style="text-decoration: none; color: black;">Ko'rish</a></button></td>
+    </tr>
+       {% endfor %}
+       </table>
+       
+       <!-- {% if messages %}
+          <ul class="messages">
+            {% for message in messages %}
+              <li>{{message}}</li>
+              {% endfor %}
+          </ul>
+        {% endif %} -->
+
+       <div class="popup-image" id="popup-image" style="position: fixed; top: 0; left: 0; background:rgba(0,0,0,.8); height: 100%; width: 100%; z-index: 100; display: none;">
+        <span style="position: absolute; top: 0; right: 10px; font-size: 40px; font-weight: bolder; color: #fff; cursor: pointer; z-index: 100; margin-right: 50px; margin-top: 20px;"
+         >&times;</span>
+           <div style="position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); font-size: 20px;"> 
+            <h4 style="text-align: center; color: white; font-size: 40px;">Odam qo'shish</h4>
+            <p><input type="text" name="name" id="name" placeholder="name" style="margin-top: 20px;"></p>
+            <p><input type="text" name="adress" id="adress" placeholder="Adress" style="margin-top: 20px;"></p>
+            <p><input type="text" name="phone_number" id="phone_number" placeholder="Phone Number" style="margin-top: 20px;"></p>
+            <p><input type="text" name="password_number" id="password_number" placeholder="Password Number" style="margin-top: 20px;"></p>
+            <input type="submit" value="AddHuman" style="margin-left: 100px; cursor: pointer; margin-top: 20px;" onclick="AddCustomer()">
+          </div>
+          <script>
+            
+          </script>
+       </div>
+       
+       <div class="popup-image2" style="display: none;  position: fixed; top: 0; left: 0; background:rgba(0,0,0,.8); height: 100%; width: 100%; z-index: 100;">
+        <span style="position: absolute; top: 0; right: 10px; font-size: 40px; font-weight: bolder; color: #fff; cursor: pointer; z-index: 100; margin-right: 50px; margin-top: 20px;"
+        >&times;</span>
+        <div class="input-container">
+            <input type="text" id="input" placeholder="Kimga">
+            <span id="suggestion"></span>
+        </div>
+        <table class="table" style="color: white;">
+            <tr>
+                <th>Nomi</th>
+                <th>Narxi</th>
+                <th>Kamaytirish</th>
+                <th>Karra</th>
+                <th>Ko'paytirish</th>
+                <th>Umumiy( <i id="all">0</i> )</th>
+            </tr>
+            {% for product in products %}
+            <tr class="tr">
+                <td class="item">{{product.name}}</td>
+                <td class="price">{{product.price}} sum</td>
+                <td><button class="minus" style="pointer-events: none;">Kamaytirish</button></td>
+                <td><input type="text" name="xtimess"  value="0" class="xtimes"></td>
+                <td><button class="multiply">Ko'paytirish</button></td>
+                <td class="sum">0</td>
+            </tr>
+            {% endfor %}
+            
+        </table>
+
+        <button id="save" style="font-size: 30px;">Saqlash</button>
+       </div>
+
+
+        <div class="backdept" style="display: none; position: fixed; top: 0; left: 0; background:rgba(0,0,0,.3); height: 100%; width: 100%; z-index: 100;">
+            <span style="position: absolute; top: 0; right: 10px; font-size: 40px; font-weight: bolder; color: #fff; cursor: pointer; z-index: 100; margin-right: 50px; margin-top: 20px;"
+            >&times;</span>
+            <div class="blog" style="position: absolute; left: 50%; top: 50%;
+             transform: translate(-50%,-50%); text-align: center;">
+                <input type="number" name="money" id="money" style="font-size: 30px; border: 2px solid;" placeholder="Summa">
+                <p> <button style="font-size: 20px; margin-top: 10px; 
+                padding: 10px; cursor: pointer;" onclick="returnDept()">Qaytarish</button> </p>
+            </div>
+        </div>
+
+
+
+       <script src="{% static 'js/index.js' %}"></script>
+       <script>
+        function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+        const csrftoken = getCookie('csrftoken');
+        var datas = {}
+        var order_id;
+        var currentRow;
+        document.querySelectorAll('span').forEach(data=>{
+            data.onclick=()=>{
+                datas = {};
+                document.querySelector('.popup-image').style.display = "none";
+                document.querySelector('.popup-image2').style.display = "none";
+                document.querySelector('.backdept').style.display = "none";
+                document.getElementById('input').value = "";
+                document.querySelectorAll('.xtimes').forEach(xt=>{
+                    xt.value = 0;
+                })
+                document.querySelectorAll('.sum').forEach(xt=>{
+                    xt.innerHTML = 0;
+                })
+            }
+        })
+
+       document.querySelectorAll('.table .tr').forEach(data=>{
+             data.querySelector('.minus').onclick=()=>{
+                xtimes =parseFloat(data.querySelector('.xtimes').value);
+                item = data.querySelector('.item').innerHTML;
+                if(xtimes>0){
+                    sum = parseFloat(data.querySelector('.sum').innerHTML);
+                    price_text = data.querySelector('.price').innerHTML;
+                    price = '';
+                    for(let i of price_text){
+                        if((!isNaN(i) || i=='.')^(i==' ')){
+                            price+=i;
+                        }
+                    }
+                    price = parseFloat(price)
+                    sum-=price;
+                    
+                    xtimes-=1;
+                    data.querySelector('.sum').innerHTML = sum;
+                    data.querySelector('.xtimes').value=xtimes;
+                    datas[item] =parseFloat(xtimes);
+                    }else{
+                        data.querySelector('.minus').style.pointerEvents = "none";
+                    }
+
+                    if(xtimes==0){
+                        delete datas[item];
+                    }
+
+                    allDept();
+             }
+                          
+            data.querySelector('.multiply').onclick=()=>{
+            xtimes =parseFloat(data.querySelector('.xtimes').value);
+            sum = parseFloat(data.querySelector('.sum').innerHTML);
+            price_text = data.querySelector('.price').innerHTML;
+            item = data.querySelector('.item').innerHTML;
+            price = '';
+            for(let i of price_text){
+                if((!isNaN(i) || i=='.')^(i==' ')){
+                    price+=i;
+                }
+            }
+            price = parseFloat(price)
+            sum+=price;
+            xtimes+=1;
+            data.querySelector('.sum').innerHTML = sum;
+            data.querySelector('.xtimes').value=xtimes;
+            datas[item] = parseFloat(xtimes);
+            if(xtimes>0){
+                data.querySelector('.minus').style.pointerEvents = "all"; 
+            }
+            allDept();
+            } 
+            
+            data.querySelector('.xtimes').addEventListener("keydown", (e)=>{
+                if(e.key == 'Enter'){
+                    xtimes=parseFloat(data.querySelector('.xtimes').value);
+                    item = data.querySelector('.item').innerHTML;
+                    if(xtimes>=0){
+                        price_text = data.querySelector('.price').innerHTML;
+                        price = '';
+                        for(let i of price_text){
+                            if((!isNaN(i) || i=='.')^(i==' ')){
+                                price+=i;
+                            }
+                        }
+                        data.querySelector('.sum').innerHTML=Number(price)*Number(xtimes);
+                        sum = data.querySelector('.sum').innerHTML;
+                        datas[item] = parseFloat(xtimes);
+                        price = parseFloat(price)
+                    }else{
+                        alert('0 dan kichik son kiritmang!');
+                        xtimes=data.querySelector('.xtimes').value=0;
+                    } 
+
+                    if(xtimes<=0){
+                        delete datas[item];
+                    }
+                }
+                allDept();
+            })
+
+        })
+
+       document.getElementById('save').addEventListener('click', ()=>{
+           let who = document.getElementById('input').value;
+           if(who.length!=0){
+            datas['who']=who;
+            datas['dept'] = parseFloat(document.getElementById('all').innerHTML);
+            console.log(datas);
+            var url = '{% url "write_dept" %}';
+            fetch(url,{
+                method:'POST',
+                headers:{
+                    'Content-Type':'application/json',
+                    'X-CSRFToken':csrftoken,
+                },
+                body:JSON.stringify(datas),
+            })
+            .then((response)=>{
+                return response.json();
+            })
+            .then((response)=>{
+                alert(response['message'])
+                location.reload();
+            })
+           }else{
+            alert('Kimgaligini kiriting!')
+           }
+       })
+
+       document.querySelectorAll('.turn').forEach(data=>{
+          data.addEventListener('click',()=>{
+              order_id = data.id;
+              console.log(order_id);
+              document.querySelector('.backdept').style.display="block";
+          })
+       })
+       
+       function returnDept(){
+          let sum = document.getElementById('money').value;
+          sum = Number(sum);
+          if(sum>0){
+            var url = "{% url 'turndept' %}";
+            fetch(url,{
+               method:'POST',
+               headers:{
+                'Content-Type':'application/json',
+                'X-CSRFToken':csrftoken,
+               },
+               body:JSON.stringify({
+                  'id':order_id,
+                  'sum':sum,
+               })
+            })
+            .then((response)=>{
+                return response.json();
+               })
+               .then((response)=>{
+                 alert(response['message']);
+                 location.reload();
+               })
+          }
+       }
+       
+       function allDept(){
+          var all = 0;
+          document.querySelectorAll('.sum').forEach(data=>{
+              all+=parseFloat(data.innerHTML);
+          });
+          document.getElementById('all').innerHTML = all.toString();
+       }
+       
+       document.getElementById('search').addEventListener('keydown', ()=>{
+           let ss = document.getElementById('search').value.toLowerCase();
+           document.querySelectorAll('.row').forEach(data=>{
+               let tt = data.querySelector('.user').innerHTML.toLowerCase();
+               if((!tt.includes(ss))){
+                   data.classList.add('hidden-row');
+               }else{
+                   data.classList.remove('hidden-row');
+               }
+           })
+       })
+
+    document.querySelectorAll('.row').forEach(data=>{
+        data.onclick=()=>{
+            currentRow.style.backgroundColor="white";
+            currentRow.style.color = "black";
+            data.style.backgroundColor = "#3498DB";
+            data.style.color="white";
+            currentRow = data;
+        }
+    })
+
+        window.onload =()=>{
+            let ss = "";
+            let date = new Date();
+            let year = date.getFullYear();
+            let month = date.getMonth();
+            let day = date.getDate();
+            ss = "      "+day.toString()+"/"+month.toString()+"/"+year.toString();
+            document.querySelector('.first').innerHTML+=ss;
+
+            currentRow = document.querySelector('.row');
+        }
+        function AddCustomer(){
+                let name = document.getElementById('name').value;
+                let adress = document.getElementById('adress').value;
+                let phone_number = document.getElementById('phone_number').value;
+                let password_number = document.getElementById('password_number').value;
+                var url = "{% url 'add_customer' %}";
+                fetch(url,{
+                    method:'POST',
+                    headers:{
+                        'Content-Type':'application/json',
+                        'X-CSRFToken':csrftoken,
+                    },
+                    body:JSON.stringify({
+                        'name':name,
+                        'adress':adress,
+                        'phone_number':phone_number,
+                        'passpord_number':password_number,
+                    })
+                })
+                .then((response)=>{
+                    return response.json();
+                })
+                .then((response)=>{
+                    alert(response['message']);
+                    document.getElementById('popup-image').style.display = "none";
+                })
+             }
+        
+             document.getElementById('filter').addEventListener('change', ()=>{
+               let filterType = document.getElementById('filter').value;
+               let a = document.createElement('a');
+               a.href = `{% url 'home' %}?q=${filterType}`;
+               a.click();
+           })
+      </script>
+</body>
+</html>
