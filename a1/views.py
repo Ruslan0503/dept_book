@@ -5,6 +5,7 @@ from django.contrib import messages
 import json
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
+from django.urls import resolve
 # Create your views here.
 
 # There is Home
@@ -18,7 +19,7 @@ def homeFunc(request):
     else:
         customers = Customer.objects.filter(deptor=True)
     products = Product.objects.all()
-    
+
     context = {
         'products':products,
         'customers':customers,
@@ -37,7 +38,7 @@ def homeAPI(request):
     cus = []
     for i in products:
         pr.append({i.name:i.price})
-    senderCon.update({'products':pr}) 
+    senderCon.update({'products':pr})
     for i in customers:
         cus.append({
             'name':i.name,
@@ -47,9 +48,9 @@ def homeAPI(request):
             'dept':i.dept,
             'returned_dept':i.returned_dept,
         })
-    senderCon.update({'customer':cus})    
+    senderCon.update({'customer':cus})
     return Response(senderCon)
-    
+
 def home(request):
     context = homeFunc(request)
     return render(request,'index.html', context)
@@ -59,14 +60,27 @@ def home(request):
 #There is add Customer
 
 def addCustomerFunc(request):
-    try:
-        data = request.data
-    except:
-        data = json.loads(request.body.decode('utf-8'))
-    name = data['name']
-    adress = data['adress']
-    phone_number = data['phone_number']
-    passpord_number = data['passport_number']
+    name = request.GET.get('name') if request.GET.get('name')!=None else ''
+    adress =request.GET.get('adress') if request.GET.get('adress')!=None else ''
+    phone_number =request.GET.get('phone_number') if request.GET.get('phone_number')!=None else ''
+    passpord_number =request.GET.get('passpord_number') if request.GET.get('passpord_number')!=None else ''
+    if name!='' and adress!='':
+        datas = {
+            'name':name,
+            'adress':adress,
+            'phone_number':phone_number,
+            'passpord_number':passpord_number,
+            }
+    else:
+        try:
+            datas = request.data
+        except:
+            datas = json.loads(request.body.decode('utf-8'))
+
+    name = datas['name']
+    adress = datas['adress']
+    phone_number = datas['phone_number']
+    passpord_number = datas['passpord_number']
     try:
         customer = Customer.objects.create(
         name=name,
@@ -77,12 +91,12 @@ def addCustomerFunc(request):
         customer.save()
         with open('static/js/index.js', 'r') as file:
             lines = file.readlines()
-            lines.insert(1, '"'+name+'",'+'\n') 
+            lines.insert(1, '"'+name+'",'+'\n')
         with open('static/js/index.js', 'w') as file:
-            file.writelines(lines)        
+            file.writelines(lines)
     except:
         return ('Bu nom allaqachon mavjud')
-    return ("Qo'shildi..")          
+    return ("Qo'shildi..")
 
 @api_view(['POST'])
 def addCustomerAPI(request):
@@ -92,18 +106,30 @@ def addCustomerAPI(request):
 
 def add_customer(request):
     if request.method == 'POST':
-        message = addCustomerFunc(request)
-    return JsonResponse({'message':message})    
+        try:
+            message = addCustomerFunc(request)
+        except Exception as e:
+            message = str(e)
+    return JsonResponse({'message':message})
 
 #There is add Customer
 
 # there is write debt
 
 def writerDebtFunc(request):
-    try:
-        datas = request.data
-    except:
-        datas = json.loads(request.body.decode('utf-8'))
+    who = request.GET.get('who') if request.GET.get('who')!=None else ''
+    dept =request.GET.get('dept') if request.GET.get('dept')!=None else ''
+    if who!='' and dept!='':
+        datas = {
+            'who':who,
+            'dept':dept,
+            }
+    else:
+        try:
+            datas = request.data
+        except:
+            datas = json.loads(request.body.decode('utf-8'))
+
     who_is = datas['who']
     dept = float(datas['dept'])
     del datas['who']
@@ -111,7 +137,7 @@ def writerDebtFunc(request):
     try:
         who = Customer.objects.get(name=who_is)
     except:
-        return ("Bunday foydalanuvchi yo'q")    
+        return ("Bunday foydalanuvchi yo'q")
     who.dept+=dept
     who.deptor = True
     who.save()
@@ -125,7 +151,7 @@ def writerDebtFunc(request):
             product = product,
             quantity=quantity,
         )
-    return ('Added..')            
+    return ('Added..')
 
 @api_view(['POST'])
 def write_deptAPI(request):
@@ -150,12 +176,21 @@ def Customerdata(request,id):
 
 # There is turnDept functions
 def turnDeptFunc(request):
-    try:
-        datas = request.data
-    except:
-        datas = json.loads(request.body.decode('utf-8'))
+    id = request.GET.get('id') if request.GET.get('id')!=None else ''
+    sum =request.GET.get('sum') if request.GET.get('sum')!=None else ''
+    if id!='' and sum!='':
+        datas = {
+            'id':id,
+            'sum':sum,
+            }
+    else:
+        try:
+            datas = request.data
+        except:
+            datas = json.loads(request.body.decode('utf-8'))
+
     id = int(datas['id'])
-    
+
     customer = Customer.objects.get(id=id)
     customer.dept-=float(datas['sum'])
     customer.returned_dept+=float(datas['sum'])
@@ -169,8 +204,8 @@ def turnDeptFunc(request):
         quantity= float(datas['sum']),
         )
     except:
-        pass    
-    return ('done')    
+        pass
+    return ('done')
 
 @api_view(['POST'])
 def turnDeptAPI(request):
@@ -179,22 +214,22 @@ def turnDeptAPI(request):
 
 def turnDept(request):
     if request.method == 'POST':
-        message = turnDeptFunc(request)    
+        message = turnDeptFunc(request)
     return JsonResponse({'message':message})
 
 
 def showHistory(request,id):
-    who = "" 
-    try: 
-        customer = Customer.objects.get(id=id) 
-        orders = Order.objects.filter(who=customer) 
-        who = customer.name 
-    except: 
-        return HttpResponse('Biron narsa hato') 
-     
-    context = { 
-        'data':orders, 
-        'who':who, 
-        'customer':customer, 
+    who = ""
+    try:
+        customer = Customer.objects.get(id=id)
+        orders = Order.objects.filter(who=customer)
+        who = customer.name
+    except:
+        return HttpResponse('Biron narsa hato')
+
+    context = {
+        'data':orders,
+        'who':who,
+        'customer':customer,
     }
     return render(request,'history.html', context)
